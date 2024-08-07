@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Babylon.js Custom Model</title>
+    <title>Babylon.js Custom Model with CORS Proxy</title>
     <!-- Babylon.js -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
@@ -28,6 +28,7 @@
         var canvas = document.getElementById("renderCanvas");
 
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
 
@@ -43,13 +44,28 @@
             ground.material = groundMaterial;
 
             console.log("Loading model...");
-            BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/", "BigAssss.glb", scene, function (meshes) {
+
+            var proxyURL = "https://cors-anywhere.herokuapp.com/";
+            var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/BigAssss.glb";
+            var fullURL = proxyURL + modelURL;
+
+            BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
-                    // Adjust model position and scaling if necessary
                     var model = meshes[0];
                     model.position = BABYLON.Vector3.Zero();
                     model.scaling = new BABYLON.Vector3(1, 1, 1); // Adjust scaling if needed
+
+                    // Check the bounding box of the model
+                    var boundingInfo = model.getBoundingInfo();
+                    var boundingBox = boundingInfo.boundingBox;
+                    console.log("Bounding box:", boundingBox.minimumWorld, boundingBox.maximumWorld);
+
+                    // Position the camera to focus on the model
+                    var center = boundingBox.centerWorld;
+                    var extendSize = boundingBox.extendSizeWorld;
+                    camera.target = center;
+                    camera.radius = extendSize.length() * 2; // Adjust camera radius based on model size
                 } else {
                     console.log("Model loaded but no meshes found");
                 }
