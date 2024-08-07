@@ -2,8 +2,10 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Babylon.js Custom Model</title>
+    <title>Babylon.js sample code</title>
+
     <!-- Babylon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
 
@@ -20,14 +22,32 @@
             height: 100%;
             touch-action: none;
         }
+        #canvasZone {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
-    <canvas id="renderCanvas"></canvas>
+    <div id="canvasZone"><canvas id="renderCanvas"></canvas></div>
     <script>
         var canvas = document.getElementById("renderCanvas");
 
-        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        var startRenderLoop = function (engine, canvas) {
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        }
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() {
+            return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false });
+        };
+
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
 
@@ -37,24 +57,36 @@
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
 
-            var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
-            var groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
+            const groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
             groundMaterial.diffuseColor = BABYLON.Color3.FromHexString('#816cb8');
             ground.material = groundMaterial;
 
-            BABYLON.SceneLoader.Append("https://raw.githubusercontent.com/Skeindem/BabylonTests/new-branch/", "BigAssss.glb", scene, function () {
+            BABYLON.SceneLoader.Append("https://raw.githubusercontent.com/Skeindem/BabylonTests/main/", "BigAssss.glb", scene, function (scene) {
                 console.log("Custom model loaded successfully");
             });
 
             return scene;
         };
 
-        var scene = createScene();
-
-        engine.runRenderLoop(function () {
-            if (scene) {
-                scene.render();
+        window.initFunction = async function() {
+            var asyncEngineCreation = async function() {
+                try {
+                    return createDefaultEngine();
+                } catch(e) {
+                    console.log("the available createEngine function failed. Creating the default engine instead");
+                    return createDefaultEngine();
+                }
             }
+
+            window.engine = await asyncEngineCreation();
+            if (!engine) throw 'engine should not be null.';
+            startRenderLoop(engine, canvas);
+            window.scene = createScene();
+        };
+
+        initFunction().then(() => {
+            sceneToRender = scene;
         });
 
         window.addEventListener("resize", function () {
