@@ -55,40 +55,40 @@
                         console.log("Mesh Material:", mesh.material);
                         var material = mesh.material;
 
-                        if (material instanceof BABYLON.StandardMaterial || material instanceof BABYLON.PBRMaterial) {
-                            // Initialize overlay texture
-                            overlayTexture = new BABYLON.DynamicTexture("overlayTex", { width: 1024, height: 1024 }, scene);
-                            var ctx = overlayTexture.getContext();
-                            ctx.fillStyle = 'transparent'; // Clear previous content
-                            ctx.fillRect(0, 0, 1024, 1024);
+                        // Initialize overlay texture
+                        overlayTexture = new BABYLON.DynamicTexture("overlayTex", { width: 1024, height: 1024 }, scene);
+                        var ctx = overlayTexture.getContext();
+                        ctx.fillStyle = 'transparent'; // Clear previous content
+                        ctx.fillRect(0, 0, 1024, 1024);
 
-                            // Load and draw the overlay texture
-                            var img = new Image();
-                            img.crossOrigin = "Anonymous"; // Handle cross-origin requests
-                            img.src = fullTextureURL;
-                            img.onload = function () {
-                                console.log("Texture image loaded.");
-                                ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
-                                overlayTexture.update();
-                                console.log("Overlay texture updated.");
-                            };
-                            img.onerror = function () {
-                                console.error("Error loading texture image.");
-                            };
+                        // Load and draw the overlay texture
+                        var img = new Image();
+                        img.crossOrigin = "Anonymous"; // Handle cross-origin requests
+                        img.src = fullTextureURL;
+                        img.onload = function () {
+                            console.log("Texture image loaded.");
+                            ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
+                            overlayTexture.update();
+                            console.log("Overlay texture updated.");
+                        };
+                        img.onerror = function () {
+                            console.error("Error loading texture image.");
+                        };
 
-                            if (material instanceof BABYLON.StandardMaterial) {
-                                material.diffuseTexture = overlayTexture;
-                                material.specularColor = new BABYLON.Color3(0, 0, 0);
-                                material.useAlphaFromDiffuseTexture = true;
-                            } else if (material instanceof BABYLON.PBRMaterial) {
-                                material.albedoTexture = overlayTexture;
-                            }
-
-                            // Initialize scale
-                            console.log("Initial texture scale:", textureScale);
+                        if (material instanceof BABYLON.StandardMaterial) {
+                            console.log("Assigning to StandardMaterial.");
+                            material.diffuseTexture = overlayTexture;
+                            material.specularColor = new BABYLON.Color3(0, 0, 0);
+                            material.useAlphaFromDiffuseTexture = true;
+                        } else if (material instanceof BABYLON.PBRMaterial) {
+                            console.log("Assigning to PBRMaterial.");
+                            material.albedoTexture = overlayTexture;
                         } else {
-                            console.error("Material type not handled:", material);
+                            console.error("Unhandled material type:", material);
                         }
+
+                        // Log initial texture scale
+                        console.log("Initial texture scale:", textureScale);
                     } else {
                         console.error("Mesh has no material");
                     }
