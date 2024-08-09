@@ -20,7 +20,7 @@
         console.log("Loading model...");
 
         var proxyURL = "https://cors-anywhere.herokuapp.com/";
-        var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
+        var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/BigAssss.glb";
         var fullURL = proxyURL + modelURL;
 
         BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
@@ -30,7 +30,7 @@
                 model.position = BABYLON.Vector3.Zero();
                 model.scaling = new BABYLON.Vector3(1, 1, 1);
 
-                // Apply the material to the loaded model
+                // Apply material with backface culling disabled
                 var material = new BABYLON.StandardMaterial("material", scene);
                 material.backFaceCulling = false; // Render both sides
                 material.twoSidedLighting = true; // Optional: If lighting looks wrong on the backside
