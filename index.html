@@ -61,8 +61,8 @@
                         } else if (material instanceof BABYLON.PBRMaterial) {
                             // PBRMaterial case
                             var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
-                            overlayTexture.uScale = 1 / 3; // Scale down to 1/3 size
-                            overlayTexture.vScale = 1 / 3; // Scale down to 1/3 size
+                            overlayTexture.uScale = 1 / 10; // Scale down to 1/3 size
+                            overlayTexture.vScale = 1 / 10; // Scale down to 1/3 size
 
                             material.albedoTexture = overlayTexture;
                         } else {
