@@ -46,7 +46,7 @@
                 scene
             );
             camera.attachControl(canvas, true);
-            camera.wheelPrecision = 50; // Adjust the zoom sensitivity
+            camera.wheelPrecision = 150; // Adjust the zoom sensitivity
 
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
@@ -66,7 +66,7 @@
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
                     var model = meshes[0];
-                    model.position = new BABYLON.Vector3(0, 1, 0); // Adjusted position for focus
+                    model.position = new BABYLON.Vector3(0, 2, 0); // Adjusted position for focus
                     model.scaling = new BABYLON.Vector3(1, 1, 1);
 
                     // Apply material with backface culling disabled
