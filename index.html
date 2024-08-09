@@ -41,29 +41,32 @@
             if (meshes.length > 0) {
                 var model = meshes[0];
 
-                // Ensure materials exist
+                // Check and log the materials of the model
                 if (model.materials && Array.isArray(model.materials)) {
+                    console.log("Materials found:", model.materials);
+                    
                     model.materials.forEach(function(material) {
                         if (material instanceof BABYLON.StandardMaterial) {
+                            console.log("Material found:", material);
+
                             // Add overlay texture
                             var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
 
-                            // Create a new shader material for blending
-                            var shaderMaterial = new BABYLON.ShaderMaterial("shaderMaterial", scene, "overlay", {
-                                attributes: ["position", "normal", "uv"],
-                                uniforms: ["worldViewProjection", "diffuseTexture", "overlayTexture"]
-                            });
+                            // Combine base and overlay textures
+                            material.diffuseTexture = new BABYLON.MultiMaterial("combinedMaterial", scene);
+                            material.diffuseTexture.subMaterials.push(material.diffuseTexture); // Base texture
+                            material.diffuseTexture.subMaterials.push(overlayTexture); // Overlay texture
 
-                            shaderMaterial.setTexture("diffuseTexture", material.diffuseTexture);
-                            shaderMaterial.setTexture("overlayTexture", overlayTexture);
+                            // Set texture blending mode if necessary
+                            material.diffuseTexture.hasAlpha = true;
+                            material.diffuseTexture.alpha = 1;
 
-                            // Assign the new shader material to the model's material
-                            material = shaderMaterial;
+                            // Assign the updated material back to the model
+                            model.material = material;
+                        } else {
+                            console.error("Material is not an instance of BABYLON.StandardMaterial");
                         }
                     });
-
-                    // Apply the updated material to the model
-                    model.material = model.materials[0]; // Ensure the model uses the updated material
                 } else {
                     console.error("Model has no materials or materials are not an array.");
                 }
@@ -87,3 +90,4 @@
     </script>
 </body>
 </html>
+
