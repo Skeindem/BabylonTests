@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Babylon.js Test</title>
-
+    
     <!-- Include Babylon.js Library -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <!-- Optional: Include Babylon.js loaders for .glb/.gltf models -->
@@ -44,7 +44,7 @@
                 scene
             );
             camera.attachControl(canvas, true);
-            camera.wheelPrecision = 50; // Adjust zoom sensitivity
+            camera.wheelPrecision = 150; // Adjust zoom sensitivity
 
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
@@ -56,11 +56,10 @@
 
             console.log("Loading model...");
 
-            var proxyURL = "https://cors-anywhere.herokuapp.com/";
-            var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
-            var fullURL = proxyURL + modelURL;
+            // Corrected raw link to the model
+            var modelURL = "https://github.com/Skeindem/BabylonTests/raw/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
 
-            BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
+            BABYLON.SceneLoader.ImportMesh("", "", modelURL, scene, function (meshes) {
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
                     var model = meshes[0];
