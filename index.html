@@ -7,78 +7,101 @@
     
     <!-- Include Babylon.js Library -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
-
     <!-- Optional: Include Babylon.js loaders for .glb/.gltf models -->
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+    <canvas id="renderCanvas"></canvas>
 
     <script>
-        // Ensure the Babylon.js library is loaded before executing this script
-        if (typeof BABYLON === 'undefined') {
-            console.error('Babylon.js library is not loaded.');
-        } else {
-            var canvas = document.getElementById("renderCanvas");
+        var canvas = document.getElementById("renderCanvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-            var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+        var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
 
-            var createScene = function () {
-                var scene = new BABYLON.Scene(engine);
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
 
-                var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(90), BABYLON.Tools.ToRadians(65), 10, BABYLON.Vector3.Zero(), scene);
-                camera.attachControl(canvas, true);
+            // Create an ArcRotateCamera and adjust its properties
+            var camera = new BABYLON.ArcRotateCamera("camera", 
+                BABYLON.Tools.ToRadians(45), // alpha
+                BABYLON.Tools.ToRadians(30), // beta
+                10, // radius
+                BABYLON.Vector3.Zero(), // target position
+                scene
+            );
+            camera.attachControl(canvas, true);
+            camera.wheelPrecision = 50; // Adjust the zoom sensitivity
 
-                var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-                light.intensity = 0.7;
+            var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+            light.intensity = 0.7;
 
-                var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
-                var groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
-                groundMaterial.diffuseColor = BABYLON.Color3.FromHexString('#816cb8');
-                ground.material = groundMaterial;
+            var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+            var groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
+            groundMaterial.diffuseColor = BABYLON.Color3.FromHexString('#816cb8');
+            ground.material = groundMaterial;
 
-                console.log("Loading model...");
+            console.log("Loading model...");
 
-                var proxyURL = "https://cors-anywhere.herokuapp.com/";
-                var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
-                var fullURL = proxyURL + modelURL;
+            var proxyURL = "https://cors-anywhere.herokuapp.com/";
+            var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
+            var fullURL = proxyURL + modelURL;
 
-                BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
-                    if (meshes.length > 0) {
-                        console.log("Model loaded successfully");
-                        var model = meshes[0];
-                        model.position = BABYLON.Vector3.Zero();
-                        model.scaling = new BABYLON.Vector3(1, 1, 1);
+            BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
+                if (meshes.length > 0) {
+                    console.log("Model loaded successfully");
+                    var model = meshes[0];
+                    model.position = new BABYLON.Vector3(0, 1, 0); // Adjusted position for focus
+                    model.scaling = new BABYLON.Vector3(1, 1, 1);
 
-                        // Apply material with backface culling disabled
-                        meshes.forEach(function (mesh) {
-                            var material = new BABYLON.StandardMaterial("material", scene);
-                            material.backFaceCulling = false; // Render both sides
-                            material.twoSidedLighting = true; // Optional: If lighting looks wrong on the backside
-                            mesh.material = material;
-                        });
-                    } else {
-                        console.log("Model loaded but no meshes found");
-                    }
-                }, null, function (scene, message) {
-                    console.error("Error loading model:", message);
-                });
+                    // Apply material with backface culling disabled
+                    meshes.forEach(function (mesh) {
+                        var material = new BABYLON.StandardMaterial("material", scene);
+                        material.backFaceCulling = false; // Render both sides
+                        material.twoSidedLighting = true; // Optional: If lighting looks wrong on the backside
+                        mesh.material = material;
+                    });
 
-                return scene;
-            };
-
-            var scene = createScene();
-
-            engine.runRenderLoop(function () {
-                if (scene) {
-                    scene.render();
+                    // Adjust camera target to focus on the model
+                    camera.setTarget(model.position);
+                } else {
+                    console.log("Model loaded but no meshes found");
                 }
+            }, null, function (scene, message) {
+                console.error("Error loading model:", message);
             });
 
-            window.addEventListener("resize", function () {
-                engine.resize();
-            });
-        }
+            return scene;
+        };
+
+        var scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        window.addEventListener("resize", function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            engine.resize();
+        });
     </script>
 </body>
 </html>
