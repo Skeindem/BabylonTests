@@ -21,13 +21,12 @@
         #renderCanvas {
             width: 100%;
             height: 100%;
-            touch-action: none; /* Prevent touch actions from interfering */
+            touch-action: none; /* Prevents touch issues */
         }
     </style>
 </head>
 <body>
     <canvas id="renderCanvas"></canvas>
-
     <script>
         var canvas = document.getElementById("renderCanvas");
         var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
@@ -35,49 +34,46 @@
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
 
-            // Create and position camera
-            var camera = new BABYLON.ArcRotateCamera(
-                "camera",
-                BABYLON.Tools.ToRadians(45),
-                BABYLON.Tools.ToRadians(30),
-                10,
-                BABYLON.Vector3.Zero(),
+            // Create and position the camera
+            var camera = new BABYLON.ArcRotateCamera("camera", 
+                BABYLON.Tools.ToRadians(45), // Alpha: angle around the target
+                BABYLON.Tools.ToRadians(30), // Beta: angle from the target
+                10, // Radius: distance from the target
+                BABYLON.Vector3.Zero(), // Target: where the camera is looking
                 scene
             );
-            camera.attachControl(canvas, { zoomOnPinch: true }); // Adjust control settings as needed
-            camera.wheelPrecision = 130; // Adjust zoom sensitivity
-            camera.lowerRadiusLimit = 2; // Prevent zooming too close
-            camera.upperRadiusLimit = 20; // Prevent zooming too far
+            camera.attachControl(canvas, { zoomOnPinch: true });
 
+            // Set camera constraints
+            camera.lowerRadiusLimit = 1; // Minimum zoom distance
+            camera.upperRadiusLimit = 20; // Maximum zoom distance
+            camera.wheelPrecision = 120; // Zoom sensitivity
+
+            // Create a light source
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
 
+            // Create the ground
             var ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
             var groundMaterial = new BABYLON.StandardMaterial("Ground Material", scene);
             groundMaterial.diffuseColor = BABYLON.Color3.FromHexString('#816cb8');
             ground.material = groundMaterial;
 
+            // Load the model
             console.log("Loading model...");
-
-            // CORS proxy URL
             var proxyURL = "https://cors-anywhere.herokuapp.com/";
-            var modelURL = "https://github.com/Skeindem/BabylonTests/raw/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
+            var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
             var fullURL = proxyURL + modelURL;
 
             BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
                     var model = meshes[0];
-                    model.position = new BABYLON.Vector3(0, 0, 0); // Adjust position for focus
+                    model.position = new BABYLON.Vector3(0, -0.5, 0); // Center model in the scene
                     model.scaling = new BABYLON.Vector3(1, 1, 1);
-
-                    // Ensure textures are applied correctly
-                    scene.materials.forEach(function (material) {
-                        material.backFaceCulling = false; // Render both sides
-                    });
-
-                    // Optionally, adjust camera position without affecting the model
-                    camera.setTarget(model.position);
+                    
+                    // Remove any existing camera targets to avoid the camera moving with the model
+                    camera.setTarget(BABYLON.Vector3.Zero());
                 } else {
                     console.log("Model loaded but no meshes found");
                 }
@@ -97,8 +93,6 @@
         });
 
         window.addEventListener("resize", function () {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
             engine.resize();
         });
     </script>
