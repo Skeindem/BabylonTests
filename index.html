@@ -35,7 +35,7 @@
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
 
-            // Adjust camera position and parameters
+            // Create and position camera
             var camera = new BABYLON.ArcRotateCamera(
                 "camera",
                 BABYLON.Tools.ToRadians(45),
@@ -44,9 +44,9 @@
                 BABYLON.Vector3.Zero(),
                 scene
             );
-            camera.attachControl(canvas, false);
-            camera.wheelPrecision = 150; // Adjust zoom sensitivity
-            camera.lowerRadiusLimit = 5; // Prevent zooming too close
+            camera.attachControl(canvas, { zoomOnPinch: true }); // Adjust control settings as needed
+            camera.wheelPrecision = 130; // Adjust zoom sensitivity
+            camera.lowerRadiusLimit = 2; // Prevent zooming too close
             camera.upperRadiusLimit = 20; // Prevent zooming too far
 
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
@@ -68,7 +68,7 @@
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
                     var model = meshes[0];
-                    model.position = new BABYLON.Vector3(0, 0.5, 0); // Adjust position for focus
+                    model.position = new BABYLON.Vector3(0, 0, 0); // Adjust position for focus
                     model.scaling = new BABYLON.Vector3(1, 1, 1);
 
                     // Ensure textures are applied correctly
@@ -76,7 +76,7 @@
                         material.backFaceCulling = false; // Render both sides
                     });
 
-                    // Adjust camera target to focus on the model
+                    // Optionally, adjust camera position without affecting the model
                     camera.setTarget(model.position);
                 } else {
                     console.log("Model loaded but no meshes found");
