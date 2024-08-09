@@ -5,16 +5,15 @@
     var createScene = function () {
         var scene = new BABYLON.Scene(engine);
 
-        // Create an ArcRotateCamera and adjust its properties
         var camera = new BABYLON.ArcRotateCamera("camera", 
-            BABYLON.Tools.ToRadians(45), // alpha
-            BABYLON.Tools.ToRadians(30), // beta
-            10, // radius
-            BABYLON.Vector3.Zero(), // target position
+            BABYLON.Tools.ToRadians(45), 
+            BABYLON.Tools.ToRadians(30), 
+            10, 
+            BABYLON.Vector3.Zero(), 
             scene
         );
         camera.attachControl(canvas, true);
-        camera.wheelPrecision = 150; // Adjust the zoom sensitivity
+        camera.wheelPrecision = 150; // Adjust zoom sensitivity
 
         var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
@@ -34,15 +33,12 @@
             if (meshes.length > 0) {
                 console.log("Model loaded successfully");
                 var model = meshes[0];
-                model.position = new BABYLON.Vector3(0, 1, 0); // Adjusted position for focus
+                model.position = new BABYLON.Vector3(0, 1, 0); // Adjust position for focus
                 model.scaling = new BABYLON.Vector3(1, 1, 1);
 
-                // Make sure materials and textures are applied correctly
-                meshes.forEach(function (mesh) {
-                    if (mesh.material) {
-                        mesh.material.backFaceCulling = false; // Render both sides
-                        mesh.material.twoSidedLighting = true; // Optional: If lighting looks wrong on the backside
-                    }
+                // Ensure textures are applied correctly
+                scene.materials.forEach(function (material) {
+                    material.backFaceCulling = false; // Render both sides
                 });
 
                 // Adjust camera target to focus on the model
