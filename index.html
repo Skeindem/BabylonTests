@@ -56,10 +56,12 @@
 
             console.log("Loading model...");
 
-            // Corrected raw link to the model
+            // CORS proxy URL
+            var proxyURL = "https://cors-anywhere.herokuapp.com/";
             var modelURL = "https://github.com/Skeindem/BabylonTests/raw/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
+            var fullURL = proxyURL + modelURL;
 
-            BABYLON.SceneLoader.ImportMesh("", "", modelURL, scene, function (meshes) {
+            BABYLON.SceneLoader.ImportMesh("", "", fullURL, scene, function (meshes) {
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
                     var model = meshes[0];
