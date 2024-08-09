@@ -94,6 +94,9 @@
                     // Log current texture scale
                     console.log("Current uScale:", overlayTexture.uScale);
                     console.log("Current vScale:", overlayTexture.vScale);
+                    
+                    // Force a render update
+                    scene.render();
                 }
             }
         });
