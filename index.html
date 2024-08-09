@@ -2,135 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babylon.js Texture Overlay</title>
+    <title>Babylon.js Cube Example</title>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        #renderCanvas {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+    <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.js"></script>
 </head>
 <body>
-    <canvas id="renderCanvas"></canvas>
+    <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
     <script>
-        var canvas = document.getElementById("renderCanvas");
-        var engine = new BABYLON.Engine(canvas, true);
-        var scene = new BABYLON.Scene(engine);
+        const canvas = document.getElementById('renderCanvas');
+const engine = new BABYLON.Engine(canvas, true);
 
-        var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(45), BABYLON.Tools.ToRadians(30), 10, BABYLON.Vector3.Zero(), scene);
-        camera.attachControl(canvas, true);
-        camera.wheelPrecision = 150;
-        camera.setTarget(BABYLON.Vector3.Zero());
+const createScene = function () {
+    const scene = new BABYLON.Scene(engine);
 
-        var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-        light.intensity = 0.7;
+    // Create a basic light and a camera
+    const camera = new BABYLON.ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 2.5, 2, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
 
-        var proxyURL = "https://cors-anywhere.herokuapp.com/";
-        var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
-        var textureURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/clipart4820701.png";
-        var fullModelURL = proxyURL + modelURL;
-        var fullTextureURL = proxyURL + textureURL;
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
 
-        var overlayTexture;
-        var textureScale = 0.1; // Initial scale factor for the texture
+    // Load the GLB model
+    BABYLON.SceneLoader.AppendAsync("https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/Skeindem/BabylonTests/Kaka/Cube.glb", "", scene).then(() => {
+        const cube = scene.meshes[0]; // Assuming the cube is the first mesh loaded
 
-        console.log("Loading model...");
+        // Load and apply the texture
+        const material = new BABYLON.StandardMaterial("cubeMaterial", scene);
+        const texture = new BABYLON.Texture("https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/Skeindem/BabylonTests/Kaka/clipart4820701.png", scene);
 
-        BABYLON.SceneLoader.ImportMesh("", "", fullModelURL, scene, function (meshes) {
-            if (meshes.length > 0) {
-                console.log("Model loaded successfully");
+        material.diffuseTexture = texture;
+        cube.material = material;
 
-                meshes.forEach(function(mesh) {
-                    console.log("Mesh:", mesh.name);
-                    if (mesh.material) {
-                        console.log("Mesh Material:", mesh.material);
-                        var material = mesh.material;
-
-                        // Initialize overlay texture
-                        overlayTexture = new BABYLON.DynamicTexture("overlayTex", { width: 1024, height: 1024 }, scene);
-                        var ctx = overlayTexture.getContext();
-                        ctx.fillStyle = 'transparent'; // Clear previous content
-                        ctx.fillRect(0, 0, 1024, 1024);
-
-                        // Load and draw the overlay texture
-                        var img = new Image();
-                        img.crossOrigin = "Anonymous"; // Handle cross-origin requests
-                        img.src = fullTextureURL;
-                        img.onload = function () {
-                            console.log("Texture image loaded.");
-                            ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
-                            overlayTexture.update();
-                            console.log("Overlay texture updated.");
-                        };
-                        img.onerror = function () {
-                            console.error("Error loading texture image.");
-                        };
-
-                        if (material instanceof BABYLON.StandardMaterial) {
-                            console.log("Assigning to StandardMaterial.");
-                            material.diffuseTexture = overlayTexture;
-                            material.specularColor = new BABYLON.Color3(0, 0, 0);
-                            material.useAlphaFromDiffuseTexture = true;
-                        } else if (material instanceof BABYLON.PBRMaterial) {
-                            console.log("Assigning to PBRMaterial.");
-                            material.albedoTexture = overlayTexture;
-                        } else {
-                            console.error("Unhandled material type:", material);
-                        }
-
-                        // Log initial texture scale
-                        console.log("Initial texture scale:", textureScale);
-                    } else {
-                        console.error("Mesh has no material");
-                    }
-                });
-            } else {
-                console.error("No meshes found in the loaded model.");
-            }
-        }, function (scene, message) {
-            console.error("Error loading model:", message);
-        });
-
-        // Handle keyboard input for texture scaling
+        // Handle the 'd' key press to scale the texture down
+        let scale = 1;
         window.addEventListener("keydown", function (event) {
-            if (event.key === "d") { // Use "d" key for scaling
-                if (overlayTexture) {
-                    textureScale *= 0.9; // Reduce scale by 10%
-                    var ctx = overlayTexture.getContext();
-                    ctx.clearRect(0, 0, 1024, 1024); // Clear previous content
-                    var img = new Image();
-                    img.crossOrigin = "Anonymous"; // Handle cross-origin requests
-                    img.src = fullTextureURL;
-                    img.onload = function () {
-                        ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
-                        overlayTexture.update();
-                        console.log("Overlay texture scale updated to:", textureScale);
-                        // Force a render update
-                        scene.render();
-                    };
-                    img.onerror = function () {
-                        console.error("Error reloading texture image.");
-                    };
-                }
+            if (event.key === 'd') {
+                scale *= 0.9;
+                texture.uScale = scale;
+                texture.vScale = scale;
             }
         });
+    });
 
-        engine.runRenderLoop(function () {
-            scene.render();
-        });
+    return scene;
+};
 
-        window.addEventListener("resize", function () {
-            engine.resize();
-        });
+const scene = createScene();
+engine.runRenderLoop(function () {
+    scene.render();
+});
+
+window.addEventListener("resize", function () {
+    engine.resize();
+});
+
     </script>
 </body>
 </html>
