@@ -41,35 +41,34 @@
             if (meshes.length > 0) {
                 var model = meshes[0];
 
-                // Check and log the materials of the model
-                if (model.materials && Array.isArray(model.materials)) {
-                    console.log("Materials found:", model.materials);
-                    
-                    model.materials.forEach(function(material) {
-                        if (material instanceof BABYLON.StandardMaterial) {
-                            console.log("Material found:", material);
+                // Ensure materials are properly assigned
+                model.materials.forEach(function(material) {
+                    if (material instanceof BABYLON.StandardMaterial) {
+                        console.log("Material found:", material);
 
-                            // Add overlay texture
-                            var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
+                        // Apply base texture
+                        var baseTexture = material.diffuseTexture;
 
-                            // Combine base and overlay textures
-                            material.diffuseTexture = new BABYLON.MultiMaterial("combinedMaterial", scene);
-                            material.diffuseTexture.subMaterials.push(material.diffuseTexture); // Base texture
-                            material.diffuseTexture.subMaterials.push(overlayTexture); // Overlay texture
+                        // Load overlay texture
+                        var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
+                        overlayTexture.uScale = -1; // Flip texture if necessary
+                        overlayTexture.vScale = -1;
 
-                            // Set texture blending mode if necessary
-                            material.diffuseTexture.hasAlpha = true;
-                            material.diffuseTexture.alpha = 1;
+                        // Create a new material with overlay texture
+                        var overlayMaterial = new BABYLON.StandardMaterial("overlayMaterial", scene);
+                        overlayMaterial.diffuseTexture = overlayTexture;
+                        overlayMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // Remove specular reflection
 
-                            // Assign the updated material back to the model
-                            model.material = material;
-                        } else {
-                            console.error("Material is not an instance of BABYLON.StandardMaterial");
-                        }
-                    });
-                } else {
-                    console.error("Model has no materials or materials are not an array.");
-                }
+                        // Apply overlay material on top of the existing one
+                        material.subMaterials = [baseTexture, overlayMaterial];
+                        material.useAlphaFromDiffuseTexture = true;
+
+                        // Assign the updated material back to the model
+                        model.material = material;
+                    } else {
+                        console.error("Material is not an instance of BABYLON.StandardMaterial");
+                    }
+                });
 
                 // Adjust model position if needed
                 model.position.y -= 1; // Adjust based on your needs
