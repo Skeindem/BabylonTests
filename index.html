@@ -31,11 +31,12 @@
                 model.scaling = new BABYLON.Vector3(1, 1, 1);
 
                 // Apply material with backface culling disabled
-                var material = new BABYLON.StandardMaterial("material", scene);
-                material.backFaceCulling = false; // Render both sides
-                material.twoSidedLighting = true; // Optional: If lighting looks wrong on the backside
-                model.material = material;
-
+                meshes.forEach(function (mesh) {
+                    var material = new BABYLON.StandardMaterial("material", scene);
+                    material.backFaceCulling = false; // Render both sides
+                    material.twoSidedLighting = true; // Optional: If lighting looks wrong on the backside
+                    mesh.material = material;
+                });
             } else {
                 console.log("Model loaded but no meshes found");
             }
