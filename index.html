@@ -35,6 +35,7 @@
         var createScene = function () {
             var scene = new BABYLON.Scene(engine);
 
+            // Adjust camera position and parameters
             var camera = new BABYLON.ArcRotateCamera(
                 "camera",
                 BABYLON.Tools.ToRadians(45),
@@ -45,6 +46,8 @@
             );
             camera.attachControl(canvas, true);
             camera.wheelPrecision = 150; // Adjust zoom sensitivity
+            camera.lowerRadiusLimit = 5; // Prevent zooming too close
+            camera.upperRadiusLimit = 20; // Prevent zooming too far
 
             var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
             light.intensity = 0.7;
