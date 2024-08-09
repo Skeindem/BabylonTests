@@ -41,32 +41,40 @@
             if (meshes.length > 0) {
                 var model = meshes[0];
 
-                // Find and update the material for the mesh
-                model.materials.forEach(function(material) {
-                    if (material instanceof BABYLON.StandardMaterial) {
-                        // Add overlay texture
-                        var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
+                // Ensure materials exist
+                if (model.materials && Array.isArray(model.materials)) {
+                    model.materials.forEach(function(material) {
+                        if (material instanceof BABYLON.StandardMaterial) {
+                            // Add overlay texture
+                            var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
 
-                        // Create a new shader material for blending
-                        var shaderMaterial = new BABYLON.ShaderMaterial("shaderMaterial", scene, "overlay", {
-                            attributes: ["position", "normal", "uv"],
-                            uniforms: ["worldViewProjection", "diffuseTexture", "overlayTexture"]
-                        });
+                            // Create a new shader material for blending
+                            var shaderMaterial = new BABYLON.ShaderMaterial("shaderMaterial", scene, "overlay", {
+                                attributes: ["position", "normal", "uv"],
+                                uniforms: ["worldViewProjection", "diffuseTexture", "overlayTexture"]
+                            });
 
-                        shaderMaterial.setTexture("diffuseTexture", material.diffuseTexture);
-                        shaderMaterial.setTexture("overlayTexture", overlayTexture);
+                            shaderMaterial.setTexture("diffuseTexture", material.diffuseTexture);
+                            shaderMaterial.setTexture("overlayTexture", overlayTexture);
 
-                        // Assign the new shader material to the model's material
-                        material = shaderMaterial;
-                    }
-                });
+                            // Assign the new shader material to the model's material
+                            material = shaderMaterial;
+                        }
+                    });
 
-                // Apply the updated material to the model
-                model.material = model.materials[0]; // Ensure the model uses the updated material
+                    // Apply the updated material to the model
+                    model.material = model.materials[0]; // Ensure the model uses the updated material
+                } else {
+                    console.error("Model has no materials or materials are not an array.");
+                }
 
                 // Adjust model position if needed
                 model.position.y -= 1; // Adjust based on your needs
+            } else {
+                console.error("No meshes found in the loaded model.");
             }
+        }, function (scene, message) {
+            console.error("Error loading model:", message);
         });
 
         engine.runRenderLoop(function () {
