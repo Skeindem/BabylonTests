@@ -44,7 +44,7 @@
                 BABYLON.Vector3.Zero(),
                 scene
             );
-            camera.attachControl(canvas, true);
+            camera.attachControl(canvas, false);
             camera.wheelPrecision = 150; // Adjust zoom sensitivity
             camera.lowerRadiusLimit = 5; // Prevent zooming too close
             camera.upperRadiusLimit = 20; // Prevent zooming too far
@@ -68,7 +68,7 @@
                 if (meshes.length > 0) {
                     console.log("Model loaded successfully");
                     var model = meshes[0];
-                    model.position = new BABYLON.Vector3(0, 1, 0); // Adjust position for focus
+                    model.position = new BABYLON.Vector3(0, 0.5, 0); // Adjust position for focus
                     model.scaling = new BABYLON.Vector3(1, 1, 1);
 
                     // Ensure textures are applied correctly
