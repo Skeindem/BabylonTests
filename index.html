@@ -50,22 +50,23 @@
                         console.log("Mesh Material:", mesh.material);
                         var material = mesh.material;
 
-                        if (material instanceof BABYLON.StandardMaterial) {
+                        if (material instanceof BABYLON.StandardMaterial || material instanceof BABYLON.PBRMaterial) {
                             overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
-                            material.diffuseTexture = overlayTexture;
-                            material.specularColor = new BABYLON.Color3(0, 0, 0); // Optional: adjust specular color
-                            material.useAlphaFromDiffuseTexture = true; // Use alpha channel from the overlay texture
+
+                            // Apply texture to material
+                            if (material instanceof BABYLON.StandardMaterial) {
+                                material.diffuseTexture = overlayTexture;
+                                material.specularColor = new BABYLON.Color3(0, 0, 0); // Optional: adjust specular color
+                                material.useAlphaFromDiffuseTexture = true; // Use alpha channel from the overlay texture
+                            } else if (material instanceof BABYLON.PBRMaterial) {
+                                material.albedoTexture = overlayTexture;
+                            }
 
                             // Initialize scale
                             overlayTexture.uScale = textureScale;
                             overlayTexture.vScale = textureScale;
-                        } else if (material instanceof BABYLON.PBRMaterial) {
-                            overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
-                            material.albedoTexture = overlayTexture;
 
-                            // Initialize scale
-                            overlayTexture.uScale = textureScale;
-                            overlayTexture.vScale = textureScale;
+                            console.log("Initial texture scale:", textureScale);
                         } else {
                             console.error("Material type not handled:", material);
                         }
@@ -87,7 +88,12 @@
                     textureScale *= 0.9; // Reduce scale by 10%
                     overlayTexture.uScale = textureScale;
                     overlayTexture.vScale = textureScale;
+
                     console.log("Overlay texture scale updated to:", textureScale);
+
+                    // Log current texture scale
+                    console.log("Current uScale:", overlayTexture.uScale);
+                    console.log("Current vScale:", overlayTexture.vScale);
                 }
             }
         });
