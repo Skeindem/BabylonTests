@@ -81,11 +81,12 @@
 
         // Handle keyboard input for texture scaling
         window.addEventListener("keydown", function (event) {
-            if (event.key === "ArrowDown") {
+            if (event.key === "d") { // Change this line to use "d" key
                 if (overlayTexture) {
                     textureScale *= 0.9; // Reduce scale by 10%
                     overlayTexture.uScale = textureScale;
                     overlayTexture.vScale = textureScale;
+                    console.log("Overlay texture scale:", textureScale);
                 }
             }
         });
