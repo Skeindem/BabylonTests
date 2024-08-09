@@ -9,7 +9,7 @@
 <body>
     <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
     <script>
-        const canvas = document.getElementById('renderCanvas');
+      const canvas = document.getElementById('renderCanvas');
 const engine = new BABYLON.Engine(canvas, true);
 
 const createScene = function () {
@@ -25,12 +25,19 @@ const createScene = function () {
     BABYLON.SceneLoader.AppendAsync("https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/Skeindem/BabylonTests/Kaka/Cube.glb", "", scene).then(() => {
         const cube = scene.meshes[0]; // Assuming the cube is the first mesh loaded
 
+        // Log mesh to confirm loading
+        console.log('Cube Loaded:', cube);
+
         // Load and apply the texture
         const material = new BABYLON.StandardMaterial("cubeMaterial", scene);
         const texture = new BABYLON.Texture("https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/Skeindem/BabylonTests/Kaka/clipart4820701.png", scene);
 
-        material.diffuseTexture = texture;
-        cube.material = material;
+        // Ensure texture is loaded
+        texture.onLoadObservable.add(() => {
+            console.log('Texture Loaded');
+            material.diffuseTexture = texture;
+            cube.material = material;
+        });
 
         // Handle the 'd' key press to scale the texture down
         let scale = 1;
@@ -39,8 +46,25 @@ const createScene = function () {
                 scale *= 0.9;
                 texture.uScale = scale;
                 texture.vScale = scale;
+                console.log(`Texture scaled: ${scale}`);
             }
         });
+    }).catch(err => {
+        console.error('Error loading the cube or texture:', err);
+    });
+
+    return scene;
+};
+
+const scene = createScene();
+engine.runRenderLoop(function () {
+    scene.render();
+});
+
+window.addEventListener("resize", function () {
+    engine.resize();
+});
+
     });
 
     return scene;
