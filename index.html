@@ -29,66 +29,35 @@
         var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(45), BABYLON.Tools.ToRadians(30), 10, BABYLON.Vector3.Zero(), scene);
         camera.attachControl(canvas, true);
         camera.wheelPrecision = 150;
-        camera.setTarget(BABYLON.Vector3.Zero());
 
         var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
 
-        var proxyURL = "https://cors-anywhere.herokuapp.com/";
         var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
-        var textureURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/clipart4820701.png";
-        var fullModelURL = proxyURL + modelURL;
-        var fullTextureURL = proxyURL + textureURL;
+        var overlayTextureURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/clipart4820701.png";
 
-        var overlayTexture;
-        var textureScale = 0.1; // Initial scale factor for the texture
-
-        console.log("Loading model...");
-
-        BABYLON.SceneLoader.ImportMesh("", "", fullModelURL, scene, function (meshes) {
+        BABYLON.SceneLoader.ImportMesh("", "", modelURL, scene, function (meshes) {
             if (meshes.length > 0) {
                 console.log("Model loaded successfully");
-
+                
+                // Debug: Inspect the structure of loaded meshes
                 meshes.forEach(function(mesh) {
                     console.log("Mesh:", mesh.name);
                     if (mesh.material) {
                         console.log("Mesh Material:", mesh.material);
-                        var material = mesh.material;
+                        if (mesh.material instanceof BABYLON.StandardMaterial) {
+                            var material = mesh.material;
+                            // Create and apply the overlay texture
+                            var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
+                            overlayTexture.uScale = 1; // Adjust if necessary
+                            overlayTexture.vScale = 1; // Adjust if necessary
 
-                        // Initialize overlay texture
-                        overlayTexture = new BABYLON.DynamicTexture("overlayTex", { width: 1024, height: 1024 }, scene);
-                        var ctx = overlayTexture.getContext();
-                        ctx.fillStyle = 'transparent'; // Clear previous content
-                        ctx.fillRect(0, 0, 1024, 1024);
-
-                        // Load and draw the overlay texture
-                        var img = new Image();
-                        img.crossOrigin = "Anonymous"; // Handle cross-origin requests
-                        img.src = fullTextureURL;
-                        img.onload = function () {
-                            console.log("Texture image loaded.");
-                            ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
-                            overlayTexture.update();
-                            console.log("Overlay texture updated.");
-                        };
-                        img.onerror = function () {
-                            console.error("Error loading texture image.");
-                        };
-
-                        if (material instanceof BABYLON.StandardMaterial) {
-                            console.log("Assigning to StandardMaterial.");
                             material.diffuseTexture = overlayTexture;
-                            material.specularColor = new BABYLON.Color3(0, 0, 0);
-                            material.useAlphaFromDiffuseTexture = true;
-                        } else if (material instanceof BABYLON.PBRMaterial) {
-                            console.log("Assigning to PBRMaterial.");
-                            material.albedoTexture = overlayTexture;
+                            material.specularColor = new BABYLON.Color3(0, 0, 0); // Optional: adjust specular color
+                            material.useAlphaFromDiffuseTexture = true; // Use alpha channel from the overlay texture
                         } else {
-                            console.error("Unhandled material type:", material);
+                            console.error("Material is not an instance of BABYLON.StandardMaterial");
                         }
-
-                        // Log initial texture scale
-                        console.log("Initial texture scale:", textureScale);
                     } else {
                         console.error("Mesh has no material");
                     }
@@ -98,30 +67,6 @@
             }
         }, function (scene, message) {
             console.error("Error loading model:", message);
-        });
-
-        // Handle keyboard input for texture scaling
-        window.addEventListener("keydown", function (event) {
-            if (event.key === "d") { // Use "d" key for scaling
-                if (overlayTexture) {
-                    textureScale *= 0.9; // Reduce scale by 10%
-                    var ctx = overlayTexture.getContext();
-                    ctx.clearRect(0, 0, 1024, 1024); // Clear previous content
-                    var img = new Image();
-                    img.crossOrigin = "Anonymous"; // Handle cross-origin requests
-                    img.src = fullTextureURL;
-                    img.onload = function () {
-                        ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
-                        overlayTexture.update();
-                        console.log("Overlay texture scale updated to:", textureScale);
-                        // Force a render update
-                        scene.render();
-                    };
-                    img.onerror = function () {
-                        console.error("Error reloading texture image.");
-                    };
-                }
-            }
         });
 
         engine.runRenderLoop(function () {
