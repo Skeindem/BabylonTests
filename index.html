@@ -33,45 +33,37 @@
         var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
 
-        // Load the model
         var modelURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/0010001%20-%20O-Neck%20T-Shirt%20MEN%203D_3.glb";
         var overlayTextureURL = "https://raw.githubusercontent.com/Skeindem/BabylonTests/AssBranch/clipart4820701.png";
-        
+
         BABYLON.SceneLoader.ImportMesh("", "", modelURL, scene, function (meshes) {
             if (meshes.length > 0) {
+                // Assuming the first mesh contains the model
                 var model = meshes[0];
+                console.log("Model loaded successfully");
 
-                // Ensure materials are properly assigned
-                model.materials.forEach(function(material) {
-                    if (material instanceof BABYLON.StandardMaterial) {
-                        console.log("Material found:", material);
+                // Check and handle the materials
+                if (model.materials && model.materials.length > 0) {
+                    model.materials.forEach(function(material) {
+                        if (material instanceof BABYLON.StandardMaterial) {
+                            console.log("Material found:", material);
 
-                        // Apply base texture
-                        var baseTexture = material.diffuseTexture;
+                            // Create and apply the overlay texture
+                            var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
+                            overlayTexture.uScale = 1; // Adjust if necessary
+                            overlayTexture.vScale = 1; // Adjust if necessary
 
-                        // Load overlay texture
-                        var overlayTexture = new BABYLON.Texture(overlayTextureURL, scene);
-                        overlayTexture.uScale = -1; // Flip texture if necessary
-                        overlayTexture.vScale = -1;
-
-                        // Create a new material with overlay texture
-                        var overlayMaterial = new BABYLON.StandardMaterial("overlayMaterial", scene);
-                        overlayMaterial.diffuseTexture = overlayTexture;
-                        overlayMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // Remove specular reflection
-
-                        // Apply overlay material on top of the existing one
-                        material.subMaterials = [baseTexture, overlayMaterial];
-                        material.useAlphaFromDiffuseTexture = true;
-
-                        // Assign the updated material back to the model
-                        model.material = material;
-                    } else {
-                        console.error("Material is not an instance of BABYLON.StandardMaterial");
-                    }
-                });
-
-                // Adjust model position if needed
-                model.position.y -= 1; // Adjust based on your needs
+                            // Apply the overlay texture to the material
+                            material.diffuseTexture = overlayTexture;
+                            material.specularColor = new BABYLON.Color3(0, 0, 0); // Optional: adjust specular color
+                            material.useAlphaFromDiffuseTexture = true; // Use alpha channel from the overlay texture
+                        } else {
+                            console.error("Material is not an instance of BABYLON.StandardMaterial");
+                        }
+                    });
+                } else {
+                    console.error("Model has no materials or materials are not an array.");
+                }
             } else {
                 console.error("No meshes found in the loaded model.");
             }
