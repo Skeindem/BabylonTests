@@ -67,8 +67,13 @@
                             img.crossOrigin = "Anonymous"; // Handle cross-origin requests
                             img.src = fullTextureURL;
                             img.onload = function () {
+                                console.log("Texture image loaded.");
                                 ctx.drawImage(img, 0, 0, 1024 * textureScale, 1024 * textureScale);
                                 overlayTexture.update();
+                                console.log("Overlay texture updated.");
+                            };
+                            img.onerror = function () {
+                                console.error("Error loading texture image.");
                             };
 
                             if (material instanceof BABYLON.StandardMaterial) {
@@ -111,6 +116,9 @@
                         console.log("Overlay texture scale updated to:", textureScale);
                         // Force a render update
                         scene.render();
+                    };
+                    img.onerror = function () {
+                        console.error("Error reloading texture image.");
                     };
                 }
             }
